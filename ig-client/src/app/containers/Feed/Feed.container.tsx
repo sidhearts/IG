@@ -12,7 +12,10 @@ import { StoryData } from "./Feed.types";
 export const Feed = () => {
   const [userData, setUserData] = useState<StoryData | null>(null);
   const [othersData, setOthersData] = useState<StoryData[]>([]);
-  const [selectedUser, setSelectedUser] = useState<StoryData | null>(null);
+  const [selectedUserIndex, setSelectedUserIndex] = useState<number | null>(
+    null
+  );
+  const [selectedStories, setSelectedStories] = useState<StoryData[]>([]);
 
   useEffect(() => {
     // fetching current user detail
@@ -26,12 +29,13 @@ export const Feed = () => {
       .then((data) => setOthersData(data));
   }, []);
 
-  const handleStoryClick = (user: StoryData) => {
-    setSelectedUser(user);
+  const handleStoryClick = (user: StoryData, story: StoryData[]) => {
+    setSelectedStories(story);
+    setSelectedUserIndex(story.indexOf(user));
   };
 
   const handleCloseModal = () => {
-    setSelectedUser(null);
+    setSelectedUserIndex(null);
   };
 
   return (
@@ -40,7 +44,7 @@ export const Feed = () => {
         <div
           role='button'
           className={styles.story}
-          onClick={() => handleStoryClick(userData)}
+          onClick={() => handleStoryClick(userData, [userData])}
         >
           <Avatar
             src={userData.user.profileImage}
@@ -55,7 +59,7 @@ export const Feed = () => {
             role='button'
             className={styles.story}
             key={data.id}
-            onClick={() => handleStoryClick(data)}
+            onClick={() => handleStoryClick(data, othersData)}
           >
             <Avatar
               src={data.user.profileImage}
@@ -64,9 +68,10 @@ export const Feed = () => {
             />
           </div>
         ))}
-      {selectedUser && (
+      {selectedUserIndex !== null && (
         <StoryModal
-          stories={[selectedUser, ...othersData]}
+          stories={selectedStories}
+          selectedStoryIndex={selectedUserIndex}
           onClose={handleCloseModal}
         />
       )}

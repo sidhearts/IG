@@ -54,3 +54,11 @@
   line-height: 16px;
   margin: 0;
 }
+
+.loaderWrapper {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

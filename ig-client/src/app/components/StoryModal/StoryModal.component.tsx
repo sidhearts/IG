@@ -3,23 +3,29 @@ import { useCallback, useEffect, useState } from "react";
 import { CommonConstants } from "@/app/constants/CommonConstants";
 import { Avatar } from "@/app/components/Avatar";
 import { IconButton } from "@/app/components/IconButton";
+import { Loader } from "@/app/components/Loader";
 
 import styles from "./StoryModal.module.css";
-import { StoryModalProps } from "./StoryModal.types"
+import { StoryModalProps } from "./StoryModal.types";
 
 /**
- * 
  * StoryModal used to show full page story
  */
-export const StoryModal = ({ stories, onClose }: StoryModalProps) => {
-  const [currentUserIndex, setCurrentUserIndex] = useState(0);
+export const StoryModal = ({
+  stories,
+  onClose,
+  selectedStoryIndex,
+}: StoryModalProps) => {
+  const [currentUserIndex, setCurrentUserIndex] = useState(selectedStoryIndex);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   /**
    * Function to handle next story view
    */
   const handleNextStory = useCallback(() => {
+    setIsLoading(true);
     const currentStoryCount = stories[currentUserIndex].stories.length;
     if (currentStoryIndex < currentStoryCount - 1) {
       setCurrentStoryIndex((prevIndex) => prevIndex + 1);
@@ -39,6 +45,7 @@ export const StoryModal = ({ stories, onClose }: StoryModalProps) => {
    * Function to handle previous story view
    */
   const handlePrevStory = () => {
+    setIsLoading(true);
     if (currentStoryIndex > 0) {
       setCurrentStoryIndex((prevIndex) => prevIndex - 1);
     } else if (currentUserIndex > 0) {
@@ -67,14 +74,21 @@ export const StoryModal = ({ stories, onClose }: StoryModalProps) => {
     }
   };
 
+  const handleImageLoad = () => {
+    setIsLoading(false);
+  };
+
   useEffect(() => {
-    const interval = setInterval(
-      handleNextStory,
-      CommonConstants.STORY_DURATION * 1000
-    );
+    let interval: NodeJS.Timeout;
+    if (!isLoading) {
+      interval = setInterval(
+        handleNextStory,
+        CommonConstants.STORY_DURATION * 1000
+      );
+    }
 
     return () => clearInterval(interval);
-  }, [handleNextStory]);
+  }, [handleNextStory, isLoading]);
 
   return (
     <div className={styles.modalBackdrop} onClick={handleModalClick}>
@@ -98,11 +112,18 @@ export const StoryModal = ({ stories, onClose }: StoryModalProps) => {
             <IconButton icon='/icons/cross.svg' onClick={onClose} />
           </div>
         </div>
+        {isLoading && (
+          <div className={styles.loaderWrapper}>
+            <Loader />
+          </div>
+        )}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={stories[currentUserIndex].stories[currentStoryIndex].url}
           alt='Story'
           className={styles.modalImg}
+          onLoad={handleImageLoad}
+          style={{ display: isLoading ? "none" : "block" }}
         />
       </div>
     </div>
