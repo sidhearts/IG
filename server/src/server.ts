@@ -1,9 +1,17 @@
 import express, { Request, Response } from "express";
+import cors from "cors";
 
 import { StoryData } from "./types";
 
 const app = express();
 const port = 8000;
+
+const corsOptions = {
+  credentials: true,
+  origin: ["http://localhost:3000", "https://ig-r8vq.vercel.app/"],
+};
+
+app.use(cors(corsOptions));
 
 const userData: StoryData = {
   id: 0,
