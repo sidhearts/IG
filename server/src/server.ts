@@ -6,12 +6,7 @@ import { StoryData } from "./types";
 const app = express();
 const port = 8000;
 
-const corsOptions = {
-  credentials: true,
-  origin: ["http://localhost:3000", "https://ig-r8vq.vercel.app/"],
-};
-
-app.use(cors(corsOptions));
+app.use(cors());
 
 const userData: StoryData = {
   id: 0,
